@@ -754,6 +754,19 @@ func (dp *DepProcessor) addRuleImporter() error {
 		content += s
 		cnt++
 	}
+
+	content += `
+	func init() {
+	f, err := os.OpenFile("go-agent.log", os.O_RDWR | os.O_CREATE | os.O_APPEND, 0666)
+	if err != nil {
+		log.Fatalf("error opening file: %v", err)
+	}
+
+	log.SetOutput(f)
+	log.Println("Starting alibaba-otel tool")
+	log.Println("Version: 1.0.0")
+}`
+	util.Log("Content:", content)
 	util.WriteFile(dp.generatedOf(OtelImporter), content)
 	return nil
 }
