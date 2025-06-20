@@ -50,7 +50,7 @@ func TestBuildProject4(t *testing.T) {
 	RunGoBuildFallible(t, "go", "build", "m1") // duplicated default rules
 	RunSet(t, "-rule=../../tool/data/rules/base")
 	RunGoBuildFallible(t, "go", "build", "m1")
-	RunSet(t, "-disabledefault=true", "-rule=../../tool/data/rules/base.json,../../tool/data/test_fmt.json")
+	RunSet(t, "-disabledefault=true", "-rule=../../tool/data/rules/base.json,../../tool/data/test_rules/test_fmt.json")
 	RunGoBuild(t, "go", "build", "m1")
 }
 
@@ -58,7 +58,7 @@ func TestBuildProject5(t *testing.T) {
 	const AppName = "build"
 	UseApp(AppName)
 
-	RunSet(t, "-disabledefault=false", "-verbose", "-rule=../../tool/data/test_fmt.json")
+	RunSet(t, "-disabledefault=false", "-verbose", "-rule=../../tool/data/test_rules/test_fmt.json")
 	RunGoBuild(t, "go", "build", "m1")
 	// both test_fmt.json and default.json rules should be available
 	// because we always append new -rule to the default.json by default
@@ -70,7 +70,7 @@ func TestBuildProject6(t *testing.T) {
 	const AppName = "build"
 	UseApp(AppName)
 
-	RunSet(t, "-disabledefault=true", "-rule=../../tool/data/test_fmt.json,../../tool/data/test_runtime.json", "-verbose")
+	RunSet(t, "-disabledefault=true", "-rule=../../tool/data/test_rules/test_fmt.json,../../tool/data/test_rules/test_runtime.json", "-verbose")
 	RunGoBuild(t, "go", "build", "m1")
 	// only test_fmt.json should be available because -disabledefault is set
 	ExpectDebugLogContains(t, "fmt")

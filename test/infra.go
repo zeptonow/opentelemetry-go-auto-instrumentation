@@ -155,7 +155,7 @@ func RunGoBuildFallible(t *testing.T, args ...string) {
 }
 
 func UseTestRules(name string) string {
-	path := filepath.Join(filepath.Dir(pwd), "tool", "data", name)
+	path := filepath.Join(filepath.Dir(pwd), "tool", "data", "test_rules", name)
 	return "-rule=" + path
 }
 
