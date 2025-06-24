@@ -71,7 +71,7 @@ func loadRuleRaw(content string) ([]resource.InstRule, error) {
 	var h []*ruleHolder
 	err := json.Unmarshal([]byte(content), &h)
 	if err != nil {
-		return nil, errc.New(errc.ErrInvalidJSON, err.Error())
+		return nil, errc.New(err.Error())
 	}
 	rules := make([]resource.InstRule, 0)
 	for _, rule := range h {
@@ -221,14 +221,14 @@ func matchVersion(version string, ruleVersion string) (bool, error) {
 	}
 	// Check if both rule version and package version are in sane
 	if !strings.Contains(version, "v") {
-		return false, errc.New(errc.ErrMatchRule,
+		return false, errc.New(
 			fmt.Sprintf("invalid version %v", version))
 	}
 	if !strings.Contains(ruleVersion, "[") ||
 		!strings.Contains(ruleVersion, ")") ||
 		!strings.Contains(ruleVersion, ",") ||
 		strings.Contains(ruleVersion, "v") {
-		return false, errc.New(errc.ErrMatchRule,
+		return false, errc.New(
 			fmt.Sprintf("invalid rule version %v", ruleVersion))
 	}
 	// Remove extra whitespace from the rule version string
@@ -258,7 +258,7 @@ func matchVersion(version string, ruleVersion string) (bool, error) {
 			return true, nil
 		}
 	default:
-		return false, errc.New(errc.ErrMatchRule,
+		return false, errc.New(
 			fmt.Sprintf("invalid rule version range %v", ruleVersion))
 	}
 	return false, nil
@@ -467,11 +467,11 @@ func cutPrefix(s, prefix string) (after string, found bool) {
 func parseVendorModules(projDir string) ([]*vendorModule, error) {
 	vendorFile := filepath.Join(projDir, "vendor", "modules.txt")
 	if util.PathNotExists(vendorFile) {
-		return nil, errc.New(errc.ErrNotExist, "vendor/modules.txt not found")
+		return nil, errc.New("vendor/modules.txt not found")
 	}
 	file, err := os.Open(vendorFile)
 	if err != nil {
-		return nil, errc.New(errc.ErrOpenFile, err.Error())
+		return nil, errc.New(err.Error())
 	}
 	defer func(dryRunLog *os.File) {
 		err := dryRunLog.Close()
@@ -545,8 +545,7 @@ func parseVendorModules(projDir string) ([]*vendorModule, error) {
 	}
 	err = scanner.Err()
 	if err != nil {
-		return nil, errc.New(errc.ErrParseCode,
-			"cannot parse vendor/modules.txt")
+		return nil, errc.New("cannot parse vendor/modules.txt")
 	}
 	return vms, nil
 }

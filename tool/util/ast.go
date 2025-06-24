@@ -435,7 +435,7 @@ func (ap *AstParser) ParseSnippet(codeSnippnet string) ([]dst.Stmt, error) {
 	snippet := "package main; func _() {" + codeSnippnet + "}"
 	file, err := decorator.ParseFile(ap.fset, "", snippet, 0)
 	if err != nil {
-		return nil, errc.New(errc.ErrParseCode, err.Error())
+		return nil, errc.New(err.Error())
 	}
 	return file.Decls[0].(*dst.FuncDecl).Body.List, nil
 }
@@ -446,7 +446,7 @@ func (ap *AstParser) ParseSource(source string) (*dst.File, error) {
 	ap.dec = decorator.NewDecorator(ap.fset)
 	dstRoot, err := ap.dec.Parse(source)
 	if err != nil {
-		return nil, errc.New(errc.ErrParseCode, err.Error())
+		return nil, errc.New(err.Error())
 	}
 	return dstRoot, nil
 }
@@ -455,7 +455,7 @@ func (ap *AstParser) ParseFile(filePath string, mode parser.Mode) (*dst.File, er
 	name := filepath.Base(filePath)
 	file, err := os.Open(filePath)
 	if err != nil {
-		return nil, errc.New(errc.ErrOpenFile, err.Error())
+		return nil, errc.New(err.Error())
 	}
 	defer func(file *os.File) {
 		err := file.Close()
@@ -465,12 +465,12 @@ func (ap *AstParser) ParseFile(filePath string, mode parser.Mode) (*dst.File, er
 	}(file)
 	astFile, err := parser.ParseFile(ap.fset, name, file, mode)
 	if err != nil {
-		return nil, errc.New(errc.ErrParseCode, err.Error())
+		return nil, errc.New(err.Error())
 	}
 	ap.dec = decorator.NewDecorator(ap.fset)
 	dstFile, err := ap.dec.DecorateFile(astFile)
 	if err != nil {
-		return nil, errc.New(errc.ErrParseCode, err.Error())
+		return nil, errc.New(err.Error())
 	}
 	return dstFile, nil
 }
@@ -492,7 +492,7 @@ func ParseAstFromFile(filePath string) (*dst.File, error) {
 func WriteAstToFile(astRoot *dst.File, filePath string) (string, error) {
 	file, err := os.Create(filePath)
 	if err != nil {
-		return "", errc.New(errc.ErrCreateFile, err.Error())
+		return "", errc.New(err.Error())
 	}
 	defer func(file *os.File) {
 		err := file.Close()
@@ -504,7 +504,7 @@ func WriteAstToFile(astRoot *dst.File, filePath string) (string, error) {
 	r := decorator.NewRestorer()
 	err = r.Fprint(file, astRoot)
 	if err != nil {
-		return "", errc.New(errc.ErrParseCode, err.Error())
+		return "", errc.New(err.Error())
 	}
 	return file.Name(), nil
 }

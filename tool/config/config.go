@@ -42,9 +42,6 @@ type BuildConfig struct {
 	// default rules, you can configure -disabledefault flag in advance.
 	RuleJsonFiles string
 
-	// Log specifies the log file path. If not set, log will be saved to file.
-	Log string
-
 	// Verbose true means print verbose log.
 	Verbose bool
 
@@ -91,11 +88,11 @@ func (bc *BuildConfig) IsDisableDefault() bool {
 
 func (bc *BuildConfig) makeRuleAbs(file string) (string, error) {
 	if util.PathNotExists(file) {
-		return "", errc.New(errc.ErrNotExist, file)
+		return "", errc.New(file)
 	}
 	file, err := filepath.Abs(file)
 	if err != nil {
-		return "", errc.New(errc.ErrAbsPath, err.Error())
+		return "", errc.New(err.Error())
 	}
 	return file, nil
 }
@@ -140,7 +137,7 @@ func storeConfig(bc *BuildConfig) error {
 	file := getConfPath(BuildConfFile)
 	bs, err := json.Marshal(bc)
 	if err != nil {
-		return errc.New(errc.ErrInvalidJSON, err.Error())
+		return errc.New(err.Error())
 	}
 	_, err = util.WriteFile(file, string(bs))
 	if err != nil {
@@ -165,7 +162,7 @@ func loadConfig() (*BuildConfig, error) {
 	bc := &BuildConfig{}
 	err = json.Unmarshal([]byte(data), bc)
 	if err != nil {
-		return nil, errc.New(errc.ErrInvalidJSON, err.Error())
+		return nil, errc.New(err.Error())
 	}
 	return bc, nil
 }
@@ -228,26 +225,17 @@ func InitConfig() (err error) {
 		return err
 	}
 
-	mode := os.O_WRONLY | os.O_APPEND
+	mode := os.O_CREATE | os.O_WRONLY | os.O_APPEND
 	if util.InPreprocess() {
 		// We always create log file in preprocess phase, but in further
 		// instrument phase, we append log content to the existing file.
-		mode = os.O_WRONLY | os.O_CREATE | os.O_TRUNC
+		mode = os.O_CREATE | os.O_WRONLY | os.O_TRUNC
 	}
-	if conf.Log == "" {
-		// Redirect log to file if flag is not set
-		debugLogPath := util.GetTempBuildDirWith(util.DebugLogFile)
-		debugLog, _ := os.OpenFile(debugLogPath, mode, 0777)
-		if debugLog != nil {
-			util.SetLogger(debugLog)
-		}
-	} else {
-		// Otherwise, log to the specified file
-		logFile, err := os.OpenFile(conf.Log, mode, 0777)
-		if err != nil {
-			return errc.New(errc.ErrOpenFile, err.Error())
-		}
-		util.SetLogger(logFile)
+	// Redirect log to file if flag is not set
+	debugLogPath := util.GetTempBuildDirWith(util.DebugLogFile)
+	debugLog, _ := os.OpenFile(debugLogPath, mode, 0777)
+	if debugLog != nil {
+		util.SetLogger(debugLog)
 	}
 	return nil
 }
@@ -267,8 +255,6 @@ func Configure() error {
 	if err != nil {
 		bc = &BuildConfig{}
 	}
-	flag.StringVar(&bc.Log, "log", bc.Log,
-		"Log file path. If not set, log will be saved to file.")
 	flag.BoolVar(&bc.Verbose, "verbose", bc.Verbose,
 		"Print verbose log")
 	flag.BoolVar(&bc.Debug, "debug", bc.Debug,

@@ -173,9 +173,8 @@ func findHookFile(rule *resource.InstFuncRule) (string, error) {
 			return file, nil
 		}
 	}
-	return "", errc.New(errc.ErrNotExist,
-		fmt.Sprintf("no hook %s/%s found for %s from %v",
-			rule.OnEnter, rule.OnExit, rule.Function, files))
+	return "", errc.New(fmt.Sprintf("no hook %s/%s found for %s from %v",
+		rule.OnEnter, rule.OnExit, rule.Function, files))
 }
 
 func findRuleFiles(rule resource.InstRule) ([]string, error) {
@@ -315,7 +314,7 @@ func (rp *RuleProcessor) callOnExitHook(t *resource.InstFuncRule, traits []Param
 
 func rectifyAnyType(paramList *dst.FieldList, traits []ParamTrait) error {
 	if len(paramList.List) != len(traits) {
-		return errc.New(errc.ErrInternal, "mismatched param traits")
+		return errc.New("mismatched param traits")
 	}
 	for i, field := range paramList.List {
 		trait := traits[i]
@@ -723,7 +722,7 @@ func (rp *RuleProcessor) callHookFunc(t *resource.InstFuncRule,
 		return err
 	}
 	if !rp.replenishCallContext(onEnter) {
-		return errc.New(errc.ErrInstrument, "can not rewrite hook function")
+		return errc.New("can not rewrite hook function")
 	}
 	return nil
 }

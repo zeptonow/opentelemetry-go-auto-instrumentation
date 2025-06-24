@@ -204,7 +204,7 @@ func (rp *RuleProcessor) removeOnEnterTrampolineCall(tjump *TJump) error {
 		return false
 	})
 	if removed == nil {
-		return errc.New(errc.ErrInternal, "onEnter trampoline not found")
+		return errc.New("onEnter trampoline not found")
 	}
 	return nil
 }

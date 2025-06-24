@@ -154,12 +154,12 @@ func IsGoTestFile(path string) bool {
 func HashStruct(st interface{}) (uint64, error) {
 	bs, err := json.Marshal(st)
 	if err != nil {
-		return 0, errc.New(errc.ErrInvalidJSON, err.Error())
+		return 0, errc.New(err.Error())
 	}
 	hasher := fnv.New64a()
 	_, err = hasher.Write(bs)
 	if err != nil {
-		return 0, errc.New(errc.ErrInternal, err.Error())
+		return 0, errc.New(err.Error())
 	}
 	return hasher.Sum64(), nil
 }

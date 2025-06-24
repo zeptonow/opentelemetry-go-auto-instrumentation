@@ -118,7 +118,7 @@ func RunCmd(args ...string) error {
 	cmd.Stderr = os.Stderr
 	err := cmd.Run()
 	if err != nil {
-		return errc.New(errc.ErrRunCmd, err.Error()).
+		return errc.New(err.Error()).
 			With("command", fmt.Sprintf("%v", args))
 	}
 	return nil
@@ -127,7 +127,7 @@ func RunCmd(args ...string) error {
 func CopyFile(src, dst string) error {
 	sourceFile, err := os.Open(src)
 	if err != nil {
-		return errc.New(errc.ErrOpenFile, err.Error())
+		return errc.New(err.Error())
 	}
 	defer func(sourceFile *os.File) {
 		err := sourceFile.Close()
@@ -138,7 +138,7 @@ func CopyFile(src, dst string) error {
 
 	destFile, err := os.Create(dst)
 	if err != nil {
-		return errc.New(errc.ErrCreateFile, err.Error())
+		return errc.New(err.Error())
 	}
 	defer func(destFile *os.File) {
 		err := destFile.Close()
@@ -149,7 +149,7 @@ func CopyFile(src, dst string) error {
 
 	_, err = io.Copy(destFile, sourceFile)
 	if err != nil {
-		return errc.New(errc.ErrCopyFile, err.Error())
+		return errc.New(err.Error())
 	}
 	return nil
 }
@@ -157,7 +157,7 @@ func CopyFile(src, dst string) error {
 func ReadFile(filePath string) (string, error) {
 	file, err := os.Open(filePath)
 	if err != nil {
-		return "", errc.New(errc.ErrOpenFile, err.Error())
+		return "", errc.New(err.Error())
 	}
 	defer func(file *os.File) {
 		err := file.Close()
@@ -169,7 +169,7 @@ func ReadFile(filePath string) (string, error) {
 	buf := new(strings.Builder)
 	_, err = io.Copy(buf, file)
 	if err != nil {
-		return "", errc.New(errc.ErrCopyFile, err.Error())
+		return "", errc.New(err.Error())
 	}
 	return buf.String(), nil
 
@@ -178,7 +178,7 @@ func ReadFile(filePath string) (string, error) {
 func WriteFile(filePath string, content string) (string, error) {
 	file, err := os.Create(filePath)
 	if err != nil {
-		return "", errc.New(errc.ErrOpenFile, err.Error())
+		return "", errc.New(err.Error())
 	}
 	defer func(file *os.File) {
 		err := file.Close()
@@ -189,7 +189,7 @@ func WriteFile(filePath string, content string) (string, error) {
 
 	_, err = file.WriteString(content)
 	if err != nil {
-		return "", errc.New(errc.ErrWriteFile, err.Error())
+		return "", errc.New(err.Error())
 	}
 	return file.Name(), nil
 }
@@ -198,7 +198,7 @@ func ListFiles(dir string) ([]string, error) {
 	var files []string
 	walkFn := func(path string, info os.FileInfo, err error) error {
 		if err != nil {
-			return errc.New(errc.ErrWalkDir, err.Error())
+			return errc.New(err.Error())
 		}
 		// Dont list files under hidden directories
 		if strings.HasPrefix(info.Name(), ".") {
@@ -211,7 +211,7 @@ func ListFiles(dir string) ([]string, error) {
 	}
 	err := filepath.Walk(dir, walkFn)
 	if err != nil {
-		return nil, errc.New(errc.ErrWalkDir, err.Error())
+		return nil, errc.New(err.Error())
 	}
 	return files, nil
 }
@@ -220,7 +220,7 @@ func ListFilesFlat(dir string) ([]string, error) {
 	// no recursive
 	files, err := os.ReadDir(dir)
 	if err != nil {
-		return nil, errc.New(errc.ErrReadDir, err.Error())
+		return nil, errc.New(err.Error())
 	}
 	var paths []string
 	for _, file := range files {
@@ -233,18 +233,18 @@ func CopyDir(src string, dst string) error {
 	// Get the properties of the source directory
 	sourceInfo, err := os.Stat(src)
 	if err != nil {
-		return errc.New(errc.ErrStat, err.Error())
+		return errc.New(err.Error())
 	}
 
 	// Create the destination directory
 	if err := os.MkdirAll(dst, sourceInfo.Mode()); err != nil {
-		return errc.New(errc.ErrMkdirAll, err.Error())
+		return errc.New(err.Error())
 	}
 
 	// Read the contents of the source directory
 	entries, err := ioutil.ReadDir(src)
 	if err != nil {
-		return errc.New(errc.ErrReadDir, err.Error())
+		return errc.New(err.Error())
 	}
 
 	// Iterate through each entry in the source directory
@@ -296,7 +296,7 @@ func GetToolName() (string, error) {
 	// Get the path of the current executable
 	ex, err := os.Executable()
 	if err != nil {
-		return "", errc.New(errc.ErrGetExecutable, err.Error())
+		return "", errc.New(err.Error())
 	}
 	return filepath.Base(ex), nil
 }

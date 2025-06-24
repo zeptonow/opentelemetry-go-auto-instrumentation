@@ -17,7 +17,6 @@ package main
 import (
 	"fmt"
 	"os"
-	"path/filepath"
 	"runtime"
 	"strings"
 
@@ -55,17 +54,6 @@ func printUsage() {
 	fmt.Print(usage)
 }
 
-func initLog() error {
-	name := util.PPreprocess
-	path := util.GetTempBuildDirWith(name)
-	logPath := filepath.Join(path, util.DebugLogFile)
-	_, err := os.Create(logPath)
-	if err != nil {
-		return errc.New(errc.ErrCreateFile, err.Error())
-	}
-	return nil
-}
-
 func initTempDir() error {
 	// All temp directories are prepared before, instrument phase should not
 	// create any new directories.
@@ -77,20 +65,13 @@ func initTempDir() error {
 	if util.PathNotExists(util.TempBuildDir) {
 		err := os.MkdirAll(util.TempBuildDir, 0777)
 		if err != nil {
-			return errc.New(errc.ErrMkdirAll, err.Error())
+			return errc.New(err.Error())
 		}
 	}
+	// Recreate preprocess/instrument subdirectories if they already exist
 	for _, subdir := range []string{util.PPreprocess, util.PInstrument} {
-		if util.PathExists(util.GetTempBuildDirWith(subdir)) {
-			err := os.RemoveAll(util.GetTempBuildDirWith(subdir))
-			if err != nil {
-				return errc.New(errc.ErrRemoveAll, err.Error())
-			}
-		}
-		err := os.MkdirAll(util.GetTempBuildDirWith(subdir), 0777)
-		if err != nil {
-			return errc.New(errc.ErrMkdirAll, err.Error())
-		}
+		_ = os.RemoveAll(util.GetTempBuildDirWith(subdir))
+		_ = os.MkdirAll(util.GetTempBuildDirWith(subdir), 0777)
 	}
 
 	return nil
@@ -117,14 +98,6 @@ func initEnv() error {
 		return err
 	}
 
-	// Create log files under temp build directory
-	if util.InPreprocess() {
-		err := initLog()
-		if err != nil {
-			return err
-		}
-	}
-
 	// Prepare shared configuration
 	if util.InPreprocess() || util.InInstrument() {
 		err = config.InitConfig()
@@ -137,15 +110,24 @@ func initEnv() error {
 
 func fatal(err error) {
 	message := "===== Environments =====\n"
-	message += fmt.Sprintf("%-11s: %s\n", "Command", strings.Join(os.Args, " "))
-	message += fmt.Sprintf("%-11s: %s\n", "ErrorLog", util.GetLoggerPath())
-	message += fmt.Sprintf("%-11s: %s\n", "WorkDir", os.Getenv("PWD"))
-	message += fmt.Sprintf("%-11s: %s, %s, %s\n", "Toolchain",
+	message += fmt.Sprintf("%-11s: %s\n", "command", strings.Join(os.Args, " "))
+	message += fmt.Sprintf("%-11s: %s\n", "errorLog", util.GetLoggerPath())
+	message += fmt.Sprintf("%-11s: %s\n", "workDir", os.Getenv("PWD"))
+	message += fmt.Sprintf("%-11s: %s, %s, %s\n", "toolchain",
 		runtime.GOOS+"/"+runtime.GOARCH,
 		runtime.Version(), config.ToolVersion)
-	message += "===== Fatal Error ======\n"
-	message += err.Error()
-	util.LogFatal("\033[31m%s\033[0m", message) // log in red color
+	if perr, ok := err.(*errc.PlentifulError); ok {
+		if len(perr.Details) > 0 {
+			for k, v := range perr.Details {
+				message += fmt.Sprintf("%-11s: %s\n", k, v)
+			}
+		}
+	}
+	message += "\n===== Fatal Error ======\n"
+	if perr, ok := err.(*errc.PlentifulError); ok {
+		message += "\n" + perr.Reason
+	}
+	util.LogFatal("%s", message) // log in red color
 }
 
 func main() {
@@ -169,17 +151,17 @@ func main() {
 		err = preprocess.Preprocess()
 	case SubcommandRemix:
 		err = instrument.Instrument()
+		if err != nil {
+			// We do not want to print the usage message in remix phase, because
+			// its caller(preprocess) phase has already collected the error msg
+			// and handle it properly.
+			fmt.Fprintf(os.Stderr, "%s\n", err.Error())
+			os.Exit(1)
+		}
 	default:
 		printUsage()
 	}
 	if err != nil {
-		if subcmd != SubcommandRemix {
-			fatal(err)
-		} else {
-			// If error occurs in remix phase, we dont want to decoret the error
-			// message with the environments, just print the error message, the
-			// caller(preprocess) phase will decorate instead.
-			util.LogFatal(err.Error())
-		}
+		fatal(err)
 	}
 }

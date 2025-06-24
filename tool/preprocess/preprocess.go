@@ -106,7 +106,7 @@ func runCmdCombinedOutput(dir string, env []string, args ...string) (string, err
 	cmd.Env = append(os.Environ(), env...)
 	out, err := cmd.CombinedOutput()
 	if err != nil {
-		return "", errc.New(errc.ErrRunCmd, string(out)).
+		return "", errc.New(string(out)).
 			With("command", fmt.Sprintf("%v", args))
 	}
 	return string(out), nil
@@ -125,7 +125,7 @@ func findGoMod(dir string) (string, error) {
 		}
 		dir = par
 	}
-	return "", errc.New(errc.ErrPreprocess, "cannot find go.mod")
+	return "", errc.New("cannot find go.mod")
 }
 
 func parseGoMod(gomod string) (*modfile.File, error) {
@@ -135,7 +135,7 @@ func parseGoMod(gomod string) (*modfile.File, error) {
 	}
 	modFile, err := modfile.Parse(util.GoModFile, []byte(data), nil)
 	if err != nil {
-		return nil, errc.New(errc.ErrParseCode, err.Error())
+		return nil, errc.New(err.Error())
 	}
 	return modFile, nil
 }
@@ -171,7 +171,7 @@ func findMainDir(pkgs []*packages.Package) (string, error) {
 			}
 		}
 	}
-	return "", errc.New(errc.ErrPreprocess,
+	return "", errc.New(
 		"cannot find main function in the source files")
 }
 
@@ -241,10 +241,10 @@ func (dp *DepProcessor) initMod() (err error) {
 		}
 	}
 	if dp.moduleName == "" || dp.modulePath == "" {
-		return errc.New(errc.ErrPreprocess, "cannot find compiled module")
+		return errc.New("cannot find compiled module")
 	}
 	if dp.otelImporter == "" {
-		return errc.New(errc.ErrPreprocess, "cannot place otel_importer.go file")
+		return errc.New("cannot place otel_importer.go file")
 	}
 
 	// We will import alibaba-otel/pkg module in generated code, which is not
@@ -258,7 +258,7 @@ func (dp *DepProcessor) initMod() (err error) {
 		return err
 	}
 	if dp.pkgLocalCache == "" {
-		return errc.New(errc.ErrPreprocess, "cannot find rule cache dir")
+		return errc.New("cannot find rule cache dir")
 	}
 	return nil
 }
@@ -340,7 +340,7 @@ func (dp *DepProcessor) backupFile(origin string) error {
 	backup = util.GetLogPath(filepath.Join(OtelBackups, backup))
 	err := os.MkdirAll(filepath.Dir(backup), 0777)
 	if err != nil {
-		return errc.New(errc.ErrMkdirAll, err.Error())
+		return errc.New(err.Error())
 	}
 	if _, exist := dp.backups[origin]; !exist {
 		err = util.CopyFile(origin, backup)
@@ -370,7 +370,7 @@ func (dp *DepProcessor) restoreBackupFiles() error {
 func getCompileCommands() ([]string, error) {
 	dryRunLog, err := os.Open(util.GetLogPath(DryRunLog))
 	if err != nil {
-		return nil, errc.New(errc.ErrOpenFile, err.Error())
+		return nil, errc.New(err.Error())
 	}
 	defer func(dryRunLog *os.File) {
 		err := dryRunLog.Close()
@@ -394,7 +394,7 @@ func getCompileCommands() ([]string, error) {
 	}
 	err = scanner.Err()
 	if err != nil {
-		return nil, errc.New(errc.ErrParseCode, "cannot parse dry run log")
+		return nil, errc.New("cannot parse dry run log")
 	}
 	return compileCmds, nil
 }
@@ -489,7 +489,7 @@ func tryLoadPackage(path string) ([]*packages.Package, error) {
 
 	pkgs, err := packages.Load(cfg, path)
 	if err != nil {
-		return nil, errc.New(errc.ErrPreprocess, err.Error())
+		return nil, errc.New(err.Error())
 	}
 	return pkgs, nil
 }
@@ -561,7 +561,7 @@ func findModule(buildCmd []string) ([]*packages.Package, error) {
 		}
 	}
 	if len(candidates) == 0 {
-		return nil, errc.New(errc.ErrPreprocess, "no package found")
+		return nil, errc.New("no package found")
 	}
 
 	return candidates, nil
@@ -571,7 +571,7 @@ func findModule(buildCmd []string) ([]*packages.Package, error) {
 func runDryBuild(goBuildCmd []string) ([]string, error) {
 	dryRunLog, err := os.Create(util.GetLogPath(DryRunLog))
 	if err != nil {
-		return nil, errc.New(errc.ErrCreateFile, err.Error())
+		return nil, errc.New(err.Error())
 	}
 	// The full build command is: "go build/install -a -x -n  {...}"
 	args := []string{}
@@ -594,7 +594,7 @@ func runDryBuild(goBuildCmd []string) ([]string, error) {
 	cmd.Dir = ""
 	err = cmd.Run()
 	if err != nil {
-		return nil, errc.New(errc.ErrRunCmd, err.Error()).
+		return nil, errc.New(err.Error()).
 			With("command", fmt.Sprintf("%v", args))
 	}
 
@@ -641,13 +641,13 @@ func (dp *DepProcessor) refreshDeps() error {
 func getTempGoCache() (string, error) {
 	goCachePath, err := filepath.Abs(filepath.Join(util.TempBuildDir, GoCacheDir))
 	if err != nil {
-		return "", err
+		return "", errc.New(err.Error())
 	}
 
 	if !util.PathExists(goCachePath) {
 		err = os.MkdirAll(goCachePath, 0755)
 		if err != nil {
-			return "", err
+			return "", errc.New(err.Error())
 		}
 	}
 	return goCachePath, nil
@@ -667,7 +667,7 @@ func nullDevice() string {
 func runBuildWithToolexec(goBuildCmd []string) error {
 	exe, err := os.Executable()
 	if err != nil {
-		return errc.New(errc.ErrGetExecutable, err.Error())
+		return errc.New(err.Error())
 	}
 	// go build/install
 	args := []string{}
@@ -710,6 +710,9 @@ func runBuildWithToolexec(goBuildCmd []string) error {
 	// command
 	out, err := runCmdCombinedOutput("", buildGoCacheEnv(goCachePath), args...)
 	util.Log("Output from toolexec build: %v", out)
+	if err != nil {
+		return err
+	}
 	return err
 }
 
@@ -717,7 +720,7 @@ func precheck() error {
 	// Check if the project is modularized
 	go11module := os.Getenv("GO111MODULE")
 	if go11module == "off" {
-		return errc.New(errc.ErrNotModularized, "GO111MODULE is off")
+		return errc.New("GO111MODULE is off")
 	}
 
 	// Check if the build arguments is sane
@@ -950,9 +953,10 @@ func Preprocess() error {
 		// Run go build with toolexec to start instrumentation
 		err = runBuildWithToolexec(dp.goBuildCmd)
 		if err != nil {
-			return err
+			// util.Log(err.Error())
+			fmt.Fprintf(os.Stderr, "%s\n", err.Error())
+			os.Exit(1)
 		}
 	}
-	util.Log("Build completed successfully")
 	return nil
 }

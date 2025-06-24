@@ -135,12 +135,12 @@ func (rule *InstFileRule) String() string {
 func verifyRule(rule *InstBaseRule, checkPath bool) error {
 	if checkPath {
 		if rule.Path == "" {
-			return errc.New(errc.ErrInvalidRule, "local path is empty")
+			return errc.New("local path is empty")
 		}
 	}
 	// Import path should not be empty
 	if rule.ImportPath == "" {
-		return errc.New(errc.ErrInvalidRule, "import path is empty")
+		return errc.New("import path is empty")
 	}
 	// If version is specified, it should be in the format of [start,end)
 	for _, v := range []string{rule.Version, rule.GoVersion} {
@@ -149,7 +149,7 @@ func verifyRule(rule *InstBaseRule, checkPath bool) error {
 				!strings.Contains(v, ")") ||
 				!strings.Contains(v, ",") ||
 				strings.Contains(v, "v") {
-				return errc.New(errc.ErrInvalidRule, "bad version "+v)
+				return errc.New("bad version " + v)
 			}
 		}
 	}
@@ -170,10 +170,10 @@ func (rule *InstFileRule) Verify() error {
 		return err
 	}
 	if rule.FileName == "" {
-		return errc.New(errc.ErrInvalidRule, "empty file name")
+		return errc.New("empty file name")
 	}
 	if !util.IsGoFile(rule.FileName) {
-		return errc.New(errc.ErrInvalidRule, "not a go file")
+		return errc.New("not a go file")
 	}
 	return nil
 }
@@ -189,10 +189,10 @@ func (rule *InstFuncRule) Verify() error {
 		return err
 	}
 	if rule.Function == "" {
-		return errc.New(errc.ErrInvalidRule, "empty function name")
+		return errc.New("empty function name")
 	}
 	if rule.OnEnter == "" && rule.OnExit == "" {
-		return errc.New(errc.ErrInvalidRule, "empty hook")
+		return errc.New("empty hook")
 	}
 	return nil
 }
@@ -203,10 +203,10 @@ func (rule *InstStructRule) Verify() error {
 		return err
 	}
 	if rule.StructType == "" {
-		return errc.New(errc.ErrInvalidRule, "empty struct type")
+		return errc.New("empty struct type")
 	}
 	if rule.FieldName == "" || rule.FieldType == "" {
-		return errc.New(errc.ErrInvalidRule, "empty field name or type")
+		return errc.New("empty field name or type")
 	}
 	return nil
 }

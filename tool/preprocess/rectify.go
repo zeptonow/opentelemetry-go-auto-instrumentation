@@ -56,10 +56,10 @@ func (dp *DepProcessor) findModCacheDir() (string, error) {
 	}
 	var moduleInfo moduleInfo
 	if err := json.Unmarshal([]byte(output), &moduleInfo); err != nil {
-		return "", errc.New(errc.ErrPreprocess, "failed to unmarshal module info")
+		return "", errc.New("failed to unmarshal module info")
 	}
 	if moduleInfo.Error != "" {
-		return "", errc.New(errc.ErrPreprocess,
+		return "", errc.New(
 			fmt.Sprintf("error downloading module: %s", moduleInfo.Error))
 	}
 	return moduleInfo.Dir, nil
