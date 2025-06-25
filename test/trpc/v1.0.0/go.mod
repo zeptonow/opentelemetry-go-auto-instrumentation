@@ -2,7 +2,6 @@ module trpc-go-test
 
 go 1.23.0
 
-
 replace github.com/alibaba/opentelemetry-go-auto-instrumentation => ../../../../opentelemetry-go-auto-instrumentation
 
 replace github.com/alibaba/opentelemetry-go-auto-instrumentation/test/verifier => ../../../../opentelemetry-go-auto-instrumentation/test/verifier
@@ -12,7 +11,7 @@ require (
 	github.com/golang/protobuf v1.5.0
 	go.opentelemetry.io/otel/sdk v1.35.0
 	go.opentelemetry.io/otel/sdk/metric v1.35.0
-	google.golang.org/protobuf v1.33.0
+	google.golang.org/protobuf v1.36.6
 	trpc.group/trpc-go/trpc-go v1.0.0
 )
 
@@ -52,9 +51,9 @@ require (
 	go.uber.org/multierr v1.6.0 // indirect
 	go.uber.org/zap v1.24.0 // indirect
 	golang.org/x/net v0.17.0 // indirect
-	golang.org/x/sync v0.1.0 // indirect
+	golang.org/x/sync v0.15.0 // indirect
 	golang.org/x/sys v0.30.0 // indirect
-	golang.org/x/text v0.13.0 // indirect
+	golang.org/x/text v0.26.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	trpc.group/trpc-go/tnet v1.0.1 // indirect
 	trpc.group/trpc/trpc-protocol/pb/go/trpc v1.0.0 // indirect
