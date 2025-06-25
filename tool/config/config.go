@@ -48,9 +48,6 @@ type BuildConfig struct {
 	// Debug true means debug mode.
 	Debug bool
 
-	// Restore true means restore all instrumentations.
-	Restore bool
-
 	// DisableDefault true means disable default rules.
 	DisableDefault bool
 }
@@ -259,8 +256,6 @@ func Configure() error {
 		"Print verbose log")
 	flag.BoolVar(&bc.Debug, "debug", bc.Debug,
 		"Enable debug mode, leave temporary files for debugging")
-	flag.BoolVar(&bc.Restore, "restore", bc.Restore,
-		"Restore all instrumentations")
 	flag.StringVar(&bc.RuleJsonFiles, "rule", bc.RuleJsonFiles,
 		"Use custom.json rules. Multiple rules are separated by comma.")
 	flag.BoolVar(&bc.DisableDefault, "disabledefault", bc.DisableDefault,

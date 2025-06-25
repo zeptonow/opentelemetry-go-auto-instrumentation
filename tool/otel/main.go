@@ -17,7 +17,6 @@ package main
 import (
 	"fmt"
 	"os"
-	"runtime"
 	"strings"
 
 	"github.com/alibaba/opentelemetry-go-auto-instrumentation/tool/config"
@@ -108,28 +107,6 @@ func initEnv() error {
 	return nil
 }
 
-func fatal(err error) {
-	message := "===== Environments =====\n"
-	message += fmt.Sprintf("%-11s: %s\n", "command", strings.Join(os.Args, " "))
-	message += fmt.Sprintf("%-11s: %s\n", "errorLog", util.GetLoggerPath())
-	message += fmt.Sprintf("%-11s: %s\n", "workDir", os.Getenv("PWD"))
-	message += fmt.Sprintf("%-11s: %s, %s, %s\n", "toolchain",
-		runtime.GOOS+"/"+runtime.GOARCH,
-		runtime.Version(), config.ToolVersion)
-	if perr, ok := err.(*errc.PlentifulError); ok {
-		if len(perr.Details) > 0 {
-			for k, v := range perr.Details {
-				message += fmt.Sprintf("%-11s: %s\n", k, v)
-			}
-		}
-	}
-	message += "\n===== Fatal Error ======\n"
-	if perr, ok := err.(*errc.PlentifulError); ok {
-		message += "\n" + perr.Reason
-	}
-	util.LogFatal("%s", message) // log in red color
-}
-
 func main() {
 	if len(os.Args) < 2 {
 		printUsage()
@@ -138,7 +115,7 @@ func main() {
 
 	err := initEnv()
 	if err != nil {
-		fatal(err)
+		util.LogFatal(err.Error())
 	}
 
 	subcmd := os.Args[1]
@@ -151,17 +128,10 @@ func main() {
 		err = preprocess.Preprocess()
 	case SubcommandRemix:
 		err = instrument.Instrument()
-		if err != nil {
-			// We do not want to print the usage message in remix phase, because
-			// its caller(preprocess) phase has already collected the error msg
-			// and handle it properly.
-			fmt.Fprintf(os.Stderr, "%s\n", err.Error())
-			os.Exit(1)
-		}
 	default:
 		printUsage()
 	}
 	if err != nil {
-		fatal(err)
+		util.LogFatal(err.Error())
 	}
 }

@@ -37,12 +37,12 @@ func GetLoggerPath() string {
 func Log(format string, args ...interface{}) {
 	template := "[" + GetRunPhase().String() + "] " + format + "\n"
 	logMutex.Lock()
+	defer logMutex.Unlock()
 	fmt.Fprintf(logWriter, template, args...)
-	logMutex.Unlock()
 }
 
 func LogFatal(format string, args ...interface{}) {
-	Log(format, args...)
+	fmt.Fprintf(logWriter, format, args...)
 	if InPreprocess() {
 		fmt.Fprintf(os.Stderr, format, args...)
 	}

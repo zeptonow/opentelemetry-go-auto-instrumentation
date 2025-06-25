@@ -106,8 +106,7 @@ func runCmdCombinedOutput(dir string, env []string, args ...string) (string, err
 	cmd.Env = append(os.Environ(), env...)
 	out, err := cmd.CombinedOutput()
 	if err != nil {
-		return "", errc.New(string(out)).
-			With("command", fmt.Sprintf("%v", args))
+		return string(out), errc.New(fmt.Sprintf("failed to build with %v", args))
 	}
 	return string(out), nil
 }
@@ -689,12 +688,6 @@ func runBuildWithToolexec(goBuildCmd []string) error {
 	// Append additional build arguments provided by the user
 	args = append(args, goBuildCmd[2:]...)
 
-	if config.GetConf().Restore {
-		// Dont generate any compiled binary when using -restore
-		args = append(args, "-o")
-		args = append(args, nullDevice())
-	}
-
 	util.Log("Run toolexec build: %v", args)
 	util.AssertGoBuild(args)
 
@@ -709,11 +702,11 @@ func runBuildWithToolexec(goBuildCmd []string) error {
 	// with toolexec should be run in the same directory as the original build
 	// command
 	out, err := runCmdCombinedOutput("", buildGoCacheEnv(goCachePath), args...)
-	util.Log("Output from toolexec build: %v", out)
 	if err != nil {
-		return err
+		return fmt.Errorf("%s", out)
 	}
-	return err
+	util.Log("Build with toolexec: %s", out)
+	return nil
 }
 
 func precheck() error {
@@ -953,9 +946,7 @@ func Preprocess() error {
 		// Run go build with toolexec to start instrumentation
 		err = runBuildWithToolexec(dp.goBuildCmd)
 		if err != nil {
-			// util.Log(err.Error())
-			fmt.Fprintf(os.Stderr, "%s\n", err.Error())
-			os.Exit(1)
+			return err
 		}
 	}
 	return nil

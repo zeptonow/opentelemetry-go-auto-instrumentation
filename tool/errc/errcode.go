@@ -15,6 +15,7 @@
 package errc
 
 import (
+	"fmt"
 	"runtime/debug"
 )
 
@@ -25,7 +26,8 @@ type PlentifulError struct {
 }
 
 func (e *PlentifulError) Error() string {
-	return e.Reason + "\n" + e.Cause
+	return fmt.Sprintf("\nError: %s\n\nCause: %s\n",
+		e.Reason, e.Cause)
 }
 
 func New(message string) *PlentifulError {
