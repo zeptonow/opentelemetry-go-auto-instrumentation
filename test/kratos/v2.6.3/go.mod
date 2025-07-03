@@ -2,7 +2,6 @@ module kratos/v2.5.2
 
 go 1.23.0
 
-
 replace github.com/alibaba/opentelemetry-go-auto-instrumentation/test/verifier => ../../../test/verifier
 
 replace github.com/alibaba/opentelemetry-go-auto-instrumentation => ../../../
@@ -12,9 +11,9 @@ require (
 	github.com/go-kratos/kratos/v2 v2.6.3
 	github.com/google/wire v0.6.0
 	go.opentelemetry.io/otel/sdk v1.35.0
-	google.golang.org/genproto/googleapis/api v0.0.0-20240604185151-ef581f913117
-	google.golang.org/grpc v1.66.1
-	google.golang.org/protobuf v1.34.1
+	google.golang.org/genproto/googleapis/api v0.0.0-20250324211829-b45e905df463
+	google.golang.org/grpc v1.73.0
+	google.golang.org/protobuf v1.36.6
 )
 
 require (
@@ -35,10 +34,10 @@ require (
 	go.opentelemetry.io/otel/metric v1.35.0 // indirect
 	go.opentelemetry.io/otel/sdk/metric v1.35.0 // indirect
 	go.opentelemetry.io/otel/trace v1.35.0 // indirect
-	golang.org/x/net v0.26.0 // indirect
-	golang.org/x/sync v0.7.0 // indirect
-	golang.org/x/sys v0.30.0 // indirect
-	golang.org/x/text v0.16.0 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20240604185151-ef581f913117 // indirect
+	golang.org/x/net v0.38.0 // indirect
+	golang.org/x/sync v0.15.0 // indirect
+	golang.org/x/sys v0.31.0 // indirect
+	golang.org/x/text v0.26.0 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20250324211829-b45e905df463 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
