@@ -1,6 +1,6 @@
 module github.com/alibaba/loongsuite-go-agent/pkg/rules/hertz/server
 
-go 1.23.0
+go 1.24.0
 
 replace github.com/alibaba/loongsuite-go-agent/pkg => ../../../../pkg
 
@@ -21,10 +21,9 @@ require (
 	github.com/fsnotify/fsnotify v1.7.0 // indirect
 	github.com/go-logr/logr v1.4.2 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
-	github.com/golang/protobuf v1.5.4 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.9 // indirect
-	github.com/nyaruka/phonenumbers v1.0.55 // indirect
+	github.com/nyaruka/phonenumbers v1.2.2 // indirect
 	github.com/tidwall/gjson v1.17.3 // indirect
 	github.com/tidwall/match v1.1.1 // indirect
 	github.com/tidwall/pretty v1.2.0 // indirect
@@ -34,5 +33,6 @@ require (
 	go.opentelemetry.io/otel/trace v1.36.0 // indirect
 	golang.org/x/arch v0.14.0 // indirect
 	golang.org/x/sys v0.33.0 // indirect
-	google.golang.org/protobuf v1.36.5 // indirect
+	golang.org/x/text v0.34.0 // indirect
+	google.golang.org/protobuf v1.36.11 // indirect
 )
