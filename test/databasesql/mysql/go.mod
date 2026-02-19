@@ -2,7 +2,6 @@ module databasesql/mysql
 
 go 1.23.0
 
-
 replace github.com/alibaba/loongsuite-go-agent/test/verifier => ../../../test/verifier
 
 require (
@@ -12,7 +11,7 @@ require (
 )
 
 require (
-	filippo.io/edwards25519 v1.1.0 // indirect
+	filippo.io/edwards25519 v1.1.1 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/go-logr/logr v1.4.2 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
